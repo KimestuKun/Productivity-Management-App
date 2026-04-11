@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Dashboard</h2>
+
+<a href="/logout">Logout</a>
+
+<hr>
+
+<h3>Create Task</h3>
+
+<form action="/create_task" method="POST">
+
+    <input type="text" name="title" placeholder="Task Title" required>
+
+    <br><br>
+
+    <input type="text" name="description" placeholder="Description">
+
+    <br><br>
+
+    <label>Priority:</label>
+
+    <select name="priority">
+
+        <option value="1">Low</option>
+
+        <option value="2">Medium</option>
+
+        <option value="3">High</option>
+
+    </select>
+
+    <br><br>
+
+    <label>Deadline:</label>
+
+    <input type="date" name="deadline">
+
+    <br><br>
+
+    <button type="submit">Create Task</button>
+
+</form>
+
+<hr>
+
+<h3>Your Tasks</h3>
+
+{% for task in tasks %}
+
+<div>
+
+    <strong>{{ task[1] }}</strong>
+
+    <p>{{ task[2] }}</p>
+
+    <p>Priority: {{ task[3] }}</p>
+
+    <p>Deadline: {{ task[4] }}</p>
+
+    <a href="/delete_task/{{ task[0] }}">Delete</a>
+
+</div>
+
+<hr>
+
+{% endfor %}
+
+{% endblock %}
