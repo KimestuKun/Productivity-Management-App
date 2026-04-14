@@ -13,6 +13,27 @@ db.usersTable()
 db.taskTable()
 db.userActivity()
 
+<<<<<<< HEAD
+=======
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
+
+
+app = Flask(__name__)
+app.config.from_object(Config)
+
+db = DBManager()
+db.usersTable()
+db.taskTable()
+db.userActivity()
+
+
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
+
+>>>>>>> 2e496dda6d44932479920e5db3be061cf8cb6617
 # register user
 @app.route("/register", methods=["GET", "POST"])
 def register():
