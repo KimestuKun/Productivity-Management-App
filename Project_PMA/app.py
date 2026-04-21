@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import DBManager
@@ -7,10 +6,19 @@ from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# FIXED — register Blueprint that adds /edit_task, /update_status, /activity routes
+from routes_extra import extra_bp
+app.register_blueprint(extra_bp)
+
 db = DBManager()
 db.usersTable()
 db.taskTable()
 db.userActivity()
+
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
 
 # register user
 @app.route("/register", methods=["GET", "POST"])
@@ -19,11 +27,15 @@ def register():
         username = request.form["username"]
         password = request.form["password"]
         hashed_password = generate_password_hash(password)
-        db.cursor.execute(
-            "INSERT INTO USERS (username, password_hash) VALUES (?, ?)",
-            (username, hashed_password)
-        )
-        db.conn.commit()
+        # FIXED — catch duplicate username instead of crashing with 500
+        try:
+            db.cursor.execute(
+                "INSERT INTO USERS (username, password_hash) VALUES (?, ?)",
+                (username, hashed_password)
+            )
+            db.conn.commit()
+        except Exception:
+            return render_template("register.html", error="Username already taken. Please choose a different one.")
         return redirect(url_for("login"))
     return render_template("register.html")
 
@@ -51,30 +63,19 @@ def login():
 
 # dashboard
 @app.route("/dashboard")
-
 def dashboard():
-
     if "user_id" not in session:
-
         return redirect(url_for("login"))
 
-
     tasks = db.cursor.execute(
-
         "SELECT * FROM TASKS WHERE user_id=?",
-
         (session["user_id"],)
-
     ).fetchall()
-
 
     return render_template("dashboard.html", tasks=tasks)
 
-
-
 # create task
 @app.route("/create_task", methods=["POST"])
-
 def create_task():
     title = request.form["title"]
     description = request.form["description"]
@@ -95,8 +96,6 @@ def create_task():
     db.conn.commit()
     return redirect(url_for("dashboard"))
 
-
-
 # delete task
 @app.route("/delete_task/<int:task_id>")
 def delete_task(task_id):
@@ -110,141 +109,21 @@ def delete_task(task_id):
         (session["user_id"], "delete task", datetime.now())
     )
 
-
     db.conn.commit()
     return redirect(url_for("dashboard"))
 
 # logout
 @app.route("/logout")
-
 def logout():
-    session.clear()
-    return redirect(url_for("login"))
-
-if __name__ == "__main__":
-=======
-from flask import Flask, render_template, request, redirect, session, url_for
-from werkzeug.security import generate_password_hash, check_password_hash
-from database import DBManager
-from config import Config
-from datetime import datetime
-
-app = Flask(__name__)
-app.config.from_object(Config)
-db = DBManager()
-db.usersTable()
-db.taskTable()
-db.userActivity()
-
-# register user
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        hashed_password = generate_password_hash(password)
+    # FIXED — log logout before clearing session so user_id is still available
+    if "user_id" in session:
         db.cursor.execute(
-            "INSERT INTO USERS (username, password_hash) VALUES (?, ?)",
-            (username, hashed_password)
+            "INSERT INTO USERACTIVITY (user_id, action, timestamp) VALUES (?, ?, ?)",
+            (session["user_id"], "logout", datetime.now())
         )
         db.conn.commit()
-        return redirect(url_for("login"))
-    return render_template("register.html")
-
-# login user
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-        user = db.cursor.execute(
-            "SELECT * FROM USERS WHERE username=?",
-            (username,)
-        ).fetchone()
-
-        if user and check_password_hash(user[2], password):
-            session["user_id"] = user[0]
-            db.cursor.execute(
-                "INSERT INTO USERACTIVITY (user_id, action, timestamp) VALUES (?, ?, ?)",
-                (user[0], "login", datetime.now())
-            )
-            db.conn.commit()
-            return redirect(url_for("dashboard"))
-
-    return render_template("login.html")
-
-# dashboard
-@app.route("/dashboard")
-
-def dashboard():
-
-    if "user_id" not in session:
-
-        return redirect(url_for("login"))
-
-
-    tasks = db.cursor.execute(
-
-        "SELECT * FROM TASKS WHERE user_id=?",
-
-        (session["user_id"],)
-
-    ).fetchall()
-
-
-    return render_template("dashboard.html", tasks=tasks)
-
-
-
-# create task
-@app.route("/create_task", methods=["POST"])
-
-def create_task():
-    title = request.form["title"]
-    description = request.form["description"]
-    priority = request.form["priority"]
-    deadline = request.form["deadline"]
-    db.cursor.execute("""
-        INSERT INTO TASKS (title, description, priorityLevel, deadlineDate, user_id)
-        VALUES (?, ?, ?, ?, ?)
-    """,
-    (title, description, priority, deadline, session["user_id"])
-    )
-
-    db.cursor.execute(
-        "INSERT INTO USERACTIVITY (user_id, action, timestamp) VALUES (?, ?, ?)",
-        (session["user_id"], "create task", datetime.now())
-    )
-
-    db.conn.commit()
-    return redirect(url_for("dashboard"))
-
-
-
-# delete task
-@app.route("/delete_task/<int:task_id>")
-def delete_task(task_id):
-    db.cursor.execute(
-        "DELETE FROM TASKS WHERE task_id=?",
-        (task_id,)
-    )
-
-    db.cursor.execute(
-        "INSERT INTO USERACTIVITY (user_id, action, timestamp) VALUES (?, ?, ?)",
-        (session["user_id"], "delete task", datetime.now())
-    )
-
-
-    db.conn.commit()
-    return redirect(url_for("dashboard"))
-
-# logout
-@app.route("/logout")
-
-def logout():
     session.clear()
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
->>>>>>> 2e496dda6d44932479920e5db3be061cf8cb6617
     app.run(debug=True)

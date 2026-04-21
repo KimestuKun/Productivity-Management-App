@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Task — TaskFlow{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+
+    <div class="mb-3">
+      <a href="/dashboard" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header d-flex align-items-center gap-2" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:16px 16px 0 0 !important;">
+        <i class="bi bi-pencil-square text-white"></i>
+        <span class="fw-semibold text-white">Edit Task</span>
+      </div>
+      <div class="card-body p-4">
+
+        <form method="POST" action="/edit_task/{{ task[0] }}">
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Title *</label>
+            <input type="text" name="title" class="form-control" value="{{ task[1] }}" required maxlength="100">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small">Description</label>
+            <textarea name="description" class="form-control" rows="3" maxlength="500">{{ task[2] or '' }}</textarea>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Priority *</label>
+              <select name="priority" class="form-select" required>
+                <option value="1" {% if task[3] == 1 %}selected{% endif %}>🔴 High</option>
+                <option value="2" {% if task[3] == 2 %}selected{% endif %}>🟡 Medium</option>
+                <option value="3" {% if task[3] == 3 %}selected{% endif %}>🟢 Low</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Deadline *</label>
+              <input type="date" name="deadline" class="form-control" value="{{ task[4] or '' }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold small">Status</label>
+              <select name="status" class="form-select">
+                <option value="0" {% if task[5] == 0 %}selected{% endif %}>Pending</option>
+                <option value="1" {% if task[5] == 1 %}selected{% endif %}>In Progress</option>
+                <option value="2" {% if task[5] == 2 %}selected{% endif %}>Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-check-lg me-1"></i>Save Changes
+            </button>
+            <a href="/dashboard" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

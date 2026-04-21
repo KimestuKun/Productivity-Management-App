@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Activity — TaskFlow{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-7">
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h5 class="fw-bold mb-0">Activity Log</h5>
+        <p class="text-muted small mb-0">Your 50 most recent actions</p>
+      </div>
+      <a href="/dashboard" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      </a>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+
+        {% if logs %}
+        <ul class="list-group list-group-flush">
+          {% for log in logs %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-4 py-3">
+            <div class="d-flex align-items-center gap-3">
+              {% if 'login' in log[0] %}
+              <span class="stat-icon bg-primary bg-opacity-10 text-primary" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-box-arrow-in-right"></i>
+              </span>
+              {% elif 'logout' in log[0] %}
+              <span class="stat-icon bg-secondary bg-opacity-10 text-secondary" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-box-arrow-right"></i>
+              </span>
+              {% elif 'create' in log[0] %}
+              <span class="stat-icon bg-success bg-opacity-10 text-success" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-plus-circle"></i>
+              </span>
+              {% elif 'delete' in log[0] %}
+              <span class="stat-icon bg-danger bg-opacity-10 text-danger" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-trash"></i>
+              </span>
+              {% elif 'edit' in log[0] %}
+              <span class="stat-icon bg-warning bg-opacity-10 text-warning" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-pencil"></i>
+              </span>
+              {% else %}
+              <span class="stat-icon bg-info bg-opacity-10 text-info" style="width:36px;height:36px;border-radius:10px;font-size:1rem;">
+                <i class="bi bi-activity"></i>
+              </span>
+              {% endif %}
+              <span class="fw-semibold text-capitalize">{{ log[0] }}</span>
+            </div>
+            <span class="text-muted small">{{ log[1] }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-inbox" style="font-size:2.5rem;opacity:.3"></i>
+          <p class="mt-3 mb-0">No activity recorded yet.</p>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

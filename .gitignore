@@ -1,0 +1,11 @@
+# Claude Code config
+CLAUDE.md
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+*.db
