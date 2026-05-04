@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Admin — Activity Logs — TaskFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">System Activity Logs</h4>
+    <small class="text-muted">All users · most recent first · capped at 200 entries</small>
+  </div>
+  <a href="/admin" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Action</th>
+          <th>Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="fw-semibold">{{ log[0] or '(deleted)' }}</td>
+          <td>
+            <!-- Colour-code common actions to make the log easier to scan -->
+            {% if 'login' in log[1] %}
+              <span class="badge bg-success bg-opacity-10 text-success">{{ log[1] }}</span>
+            {% elif 'logout' in log[1] %}
+              <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ log[1] }}</span>
+            {% elif 'delete' in log[1] %}
+              <span class="badge bg-danger bg-opacity-10 text-danger">{{ log[1] }}</span>
+            {% elif 'complet' in log[1] %}
+              <span class="badge bg-primary bg-opacity-10 text-primary">{{ log[1] }}</span>
+            {% elif 'admin' in log[1] %}
+              <span class="badge" style="background:rgba(79,70,229,.12);color:#4f46e5;">{{ log[1] }}</span>
+            {% else %}
+              <span class="badge bg-light text-dark">{{ log[1] }}</span>
+            {% endif %}
+          </td>
+          <td class="text-muted small">{{ log[2] }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="3" class="text-center text-muted py-4">No activity logged yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

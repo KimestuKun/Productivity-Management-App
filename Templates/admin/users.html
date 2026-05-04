@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Admin — Users — TaskFlow{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 class="fw-bold mb-0">User Management</h4>
+    <small class="text-muted">{{ users|length }} registered user(s)</small>
+  </div>
+  <a href="/admin" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+  </a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Tasks</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td class="text-muted small">{{ user[0] }}</td>
+          <td class="fw-semibold">{{ user[1] }}</td>
+          <td>
+            {% if user[2] == 'admin' %}
+              <span class="badge" style="background:linear-gradient(135deg,#4f46e5,#7c3aed);">admin</span>
+            {% else %}
+              <span class="badge bg-secondary bg-opacity-25 text-secondary">user</span>
+            {% endif %}
+          </td>
+          <td>{{ user[3] }}</td>
+          <td>
+            <div class="d-flex gap-2 flex-wrap">
+
+              <!-- Promote button (hidden if already admin) -->
+              {% if user[2] != 'admin' %}
+              <form method="POST" action="/admin/users/{{ user[0] }}/promote" style="display:inline;">
+                <button class="btn btn-sm btn-outline-primary" type="submit"
+                        onclick="return confirm('Promote {{ user[1] }} to admin?')">
+                  <i class="bi bi-arrow-up-circle me-1"></i>Promote
+                </button>
+              </form>
+              {% endif %}
+
+              <!-- Demote button (hidden if already user; also hidden for current admin's own row) -->
+              {% if user[2] == 'admin' and user[0] != session.get('user_id') %}
+              <form method="POST" action="/admin/users/{{ user[0] }}/demote" style="display:inline;">
+                <button class="btn btn-sm btn-outline-warning" type="submit"
+                        onclick="return confirm('Demote {{ user[1] }} to regular user?')">
+                  <i class="bi bi-arrow-down-circle me-1"></i>Demote
+                </button>
+              </form>
+              {% endif %}
+
+              <!-- Delete button (never shown for own account) -->
+              {% if user[0] != session.get('user_id') %}
+              <form method="POST" action="/admin/users/{{ user[0] }}/delete" style="display:inline;">
+                <button class="btn btn-sm btn-outline-danger" type="submit"
+                        onclick="return confirm('Delete {{ user[1] }} and ALL their tasks? This cannot be undone.')">
+                  <i class="bi bi-trash me-1"></i>Delete
+                </button>
+              </form>
+              {% endif %}
+
+              {% if user[0] == session.get('user_id') %}
+                <span class="text-muted small fst-italic">(you)</span>
+              {% endif %}
+
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center text-muted py-4">No users found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
